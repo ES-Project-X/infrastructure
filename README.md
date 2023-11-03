@@ -1,4 +1,4 @@
-# Project X - Documentation
+# Project X - Infrastructure
 
 ## Description
 
