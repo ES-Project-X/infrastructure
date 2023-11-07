@@ -1,7 +1,7 @@
 
-resource "aws_cognito_user_pool_client" "pool_client" {
-  name = "project-x"
-  user_pool_id = aws_cognito_user_pool.pool.id
+resource "aws_cognito_user_pool_client" "project_x" {
+  name = "project-x-user-pool-client"
+  user_pool_id = aws_cognito_user_pool.project_x.id
 
   callback_urls                        = ["https://google.com"]
   allowed_oauth_flows_user_pool_client = true
@@ -10,21 +10,21 @@ resource "aws_cognito_user_pool_client" "pool_client" {
   supported_identity_providers         = ["COGNITO"]
 }
 output "user_pool_client_id" {
-  value = aws_cognito_user_pool_client.pool_client.id
+  value = aws_cognito_user_pool_client.project_x.id
 }
 
-resource "aws_cognito_user_pool_domain" "pool_domain" {
+resource "aws_cognito_user_pool_domain" "project_x" {
   domain       = "es-project-x"
-  user_pool_id = aws_cognito_user_pool.pool.id
+  user_pool_id = aws_cognito_user_pool.project_x.id
 }
 output "user_pool_domain_id" {
-  value = aws_cognito_user_pool_domain.pool_domain.id
+  value = aws_cognito_user_pool_domain.project_x.id
 }
 
-resource "aws_cognito_user_pool" "pool" {
+resource "aws_cognito_user_pool" "project_x" {
 
   /** Basic Configuation */
-  name                = "user-pool"
+  name                = "project-x-user-pool"
   username_attributes = ["email"]
   auto_verified_attributes = ["email"]
 
@@ -69,5 +69,5 @@ resource "aws_cognito_user_pool" "pool" {
 
 }
 output "user_pool_id" {
-  value = aws_cognito_user_pool.pool.id
+  value = aws_cognito_user_pool.project_x.id
 }

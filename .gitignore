@@ -1,5 +1,6 @@
 tutorials/
 linux_amd64/
+.terraform
 .terraform.lock.hcl
 aws-cognito-cusotm-attributes.txt
 terraform.tfstate
