@@ -5,8 +5,8 @@ module "vpc" {
   name = "project-x-vpc"
   cidr = "10.0.0.0/16"
 
-  azs            = ["eu-west-1a"]
-  public_subnets = ["10.0.0.0/24"]
+  azs            = ["eu-west-1a", "eu-west-1b"]
+  public_subnets = ["10.0.0.0/24", "10.0.1.0/24"]
   # private_subnets = ["10.0.1.0/24"]
 
   # enable_nat_gateway     = true
@@ -32,9 +32,29 @@ resource "aws_security_group" "project_x_http" {
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "project_x_postgres" {
+  name        = "project-x-postgres"
+  description = "Enable Postgres access"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
