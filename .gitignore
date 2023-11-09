@@ -1,5 +1,6 @@
-tutorials/
+demo_node_app/
 linux_amd64/
+tutorials/
 .terraform
 .terraform.lock.hcl
 aws-cognito-cusotm-attributes.txt

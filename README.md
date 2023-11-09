@@ -8,6 +8,7 @@ This repository contains a Terraform script for setting up our infrastructure on
 
 - Run `./setup-terraform.sh` in root to install Terraform.
 - Run `./setup-aws-cli.sh` in root to install the AWS CLI.
+- Run `./setup-aws-cli-after.sh` in root to authenticate the AWS CLI to the Elastic Container Repository, so that you are able to push Docker images to it (replace the ECR ID inside the script, after running `terraform apply`, with the ID shown in this command's output). 
 
 ## Running the Script
 
