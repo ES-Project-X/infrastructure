@@ -1,14 +1,34 @@
-resource "aws_ecr_repository" "project_x" {
-  name                 = "project-x-container-repository"
+/* Docker Image ECS Repositories */
+
+resource "aws_ecr_repository" "project_x_web_ui" {
+  name                 = "project-x-web-ui"
   image_tag_mutability = "MUTABLE"
 }
-output "ecr_repository_id" {
-  value = aws_ecr_repository.project_x.registry_id
+resource "aws_ecr_repository" "project_x_rest_api" {
+  name                 = "project-x-rest-api"
+  image_tag_mutability = "MUTABLE"
 }
+resource "aws_ecr_repository" "project_x_graphhopper" {
+  name                 = "project-x-graphhopper"
+  image_tag_mutability = "MUTABLE"
+}
+resource "aws_ecr_repository" "project_x_cyclosm" {
+  name                 = "project-x-cyclosm"
+  image_tag_mutability = "MUTABLE"
+}
+
+output "project_x_web_ui_repository_id" { value = aws_ecr_repository.project_x_web_ui.registry_id }
+output "project_x_rest_api_repository_id" { value = aws_ecr_repository.project_x_rest_api.registry_id }
+output "project_x_graphhopper_repository_id" { value = aws_ecr_repository.project_x_graphhopper.registry_id }
+output "project_x_cyclosm_repository_id" { value = aws_ecr_repository.project_x_cyclosm.registry_id }
+
+/* ECS Cluster */
 
 resource "aws_ecs_cluster" "project_x" {
   name = "project-x-cluster"
 }
+
+/* ECS Task Execution Role */
 
 data "aws_iam_policy_document" "assume_role_policy" {
   statement {
@@ -31,31 +51,44 @@ resource "aws_iam_role" "ecsTaskExecutionRole" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
+/* ECS Task Definition */
+
 resource "aws_ecs_task_definition" "project_x" {
   family                   = "project-x-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  memory                   = 512
-  cpu                      = 256
+  memory                   = 2048
+  cpu                      = 1024
 
   container_definitions = jsonencode(
     [
       {
-        name  = "project-x-container"
-        image = "${aws_ecr_repository.project_x.repository_url}"
+        name  = "project-x-graphhopper"
+        image = "${aws_ecr_repository.project_x_graphhopper.repository_url}"
         portMappings = [
           {
-            containerPort = 5000
-            hostPort      = 5000
+            containerPort = 8989
+            hostPort      = 8989
           }
         ],
-        memory = 512
-        cpu    = 256
+        memory = 2048
+        cpu    = 1024
+        logConfiguration = {
+          logDriver = "awslogs"
+          options = {
+            awslogs-group         = "graphhopper"
+            awslogs-region        = "eu-west-1"
+            awslogs-create-group  = "true"
+            awslogs-stream-prefix = "graphhopper"
+          }
+        }
       }
     ]
   )
   execution_role_arn = aws_iam_role.ecsTaskExecutionRole.arn
 }
+
+/* ECS Service */
 
 resource "aws_ecs_service" "project_x" {
   name            = "project-x-service"
