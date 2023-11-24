@@ -63,7 +63,7 @@ resource "aws_alb" "rest_api" {
   name               = "rest-api-alb"
   load_balancer_type = "application"
   subnets            = module.vpc.public_subnets
-  security_groups    = [aws_security_group.project_x_http.id]
+  security_groups    = [aws_security_group.project_x_http.id, aws_security_group.project_x_https.id]
 }
 
 /* ALB Target Group */
@@ -86,12 +86,24 @@ resource "aws_lb_target_group" "rest_api" {
   }
 }
 
-/* ALB Listener */
+/* ALB Listeners */
 
-resource "aws_lb_listener" "rest_api" {
+resource "aws_lb_listener" "rest_api_http" {
   load_balancer_arn = aws_alb.rest_api.arn
   port              = 80
   protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.rest_api.arn
+  }
+}
+
+resource "aws_lb_listener" "rest_api_https" {
+  load_balancer_arn = aws_alb.rest_api.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = var.cert_arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.rest_api.arn
