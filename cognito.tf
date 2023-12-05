@@ -3,7 +3,7 @@ resource "aws_cognito_user_pool_client" "project_x" {
   name = "project-x-user-pool-client"
   user_pool_id = aws_cognito_user_pool.project_x.id
 
-  callback_urls                        = ["http://localhost:3000", var.web_ui_domain]
+  callback_urls                        = ["http://localhost:3000", "https://${var.web_ui_domain}"]
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_scopes                 = ["email", "openid"]

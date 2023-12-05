@@ -7,5 +7,11 @@ variable "cert_arn" {
 /* Web UI Domain */
 variable "web_ui_domain" {
   type = string
-  default = "https://web.project-x.pt"
+  default = "web.project-x.pt"
+}
+
+/* API Gateway Domain */
+variable "api_gw_domain" {
+  type = string
+  default = "gw.project-x.pt"
 }
