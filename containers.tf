@@ -12,15 +12,10 @@ resource "aws_ecr_repository" "project_x_graphhopper" {
   name                 = "project-x-graphhopper"
   image_tag_mutability = "MUTABLE"
 }
-resource "aws_ecr_repository" "project_x_cyclosm" {
-  name                 = "project-x-cyclosm"
-  image_tag_mutability = "MUTABLE"
-}
 
 output "project_x_web_ui_repository_id" { value = aws_ecr_repository.project_x_web_ui.registry_id }
 output "project_x_rest_api_repository_id" { value = aws_ecr_repository.project_x_rest_api.registry_id }
 output "project_x_graphhopper_repository_id" { value = aws_ecr_repository.project_x_graphhopper.registry_id }
-output "project_x_cyclosm_repository_id" { value = aws_ecr_repository.project_x_cyclosm.registry_id }
 
 /* ECS Cluster */
 
