@@ -34,24 +34,31 @@ resource "aws_apigatewayv2_api_mapping" "project_x" {
 
 /* REST API */
 
-// resource "aws_apigatewayv2_vpc_link" "rest_api" {
-//   name               = "project-x-rest-api"
-//   security_group_ids = [aws_security_group.project_x_http.id]
-//   subnet_ids         = [module.vpc.public_subnets[0], module.vpc.public_subnets[1]]
-// }
+resource "aws_apigatewayv2_vpc_link" "rest_api" {
+  name               = "project-x-rest-api"
+  security_group_ids = [aws_security_group.project_x_http.id]
+  subnet_ids         = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]] # [module.vpc.public_subnets[0], module.vpc.public_subnets[1]]
+}
 
 resource "aws_apigatewayv2_route" "rest_api" {
   api_id    = aws_apigatewayv2_api.project_x.id
   route_key = "ANY /api/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.rest_api.id}"
+
 }
 
 resource "aws_apigatewayv2_integration" "rest_api" {
-  api_id             = aws_apigatewayv2_api.project_x.id
-  integration_type   = "HTTP_PROXY"
+  api_id           = aws_apigatewayv2_api.project_x.id
+  integration_type = "HTTP_PROXY"
+  integration_uri  = aws_lb_listener.rest_api_http.arn # "http://${aws_alb.rest_api.dns_name}/{proxy}"
+
   integration_method = "ANY"
-  integration_uri    = "http://${aws_alb.rest_api.dns_name}/{proxy}"
-  connection_type    = "INTERNET"
+  connection_type    = "VPC_LINK"
+  connection_id      = aws_apigatewayv2_vpc_link.rest_api.id
+
+request_parameters = {
+  "overwrite:path" = "/$request.path.proxy"
+}
 }
 
 /* Graphhopper */
