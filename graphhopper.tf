@@ -45,9 +45,9 @@ resource "aws_ecs_service" "graphhopper" {
   desired_count   = 1
 
   network_configuration {
-    subnets          = [module.vpc.public_subnets[0]]
+    subnets          = [module.vpc.private_subnets[0]] # [module.vpc.public_subnets[0]]
     assign_public_ip = true
-    security_groups  = [aws_security_group.project_x_any.id]
+    security_groups  = [aws_security_group.project_x_http.id]
   }
 
   load_balancer {
@@ -62,8 +62,9 @@ resource "aws_ecs_service" "graphhopper" {
 resource "aws_alb" "graphhopper" {
   name               = "graphhopper-alb"
   load_balancer_type = "application"
-  subnets            = module.vpc.public_subnets
-  security_groups    = [aws_security_group.project_x_http.id, aws_security_group.project_x_https.id]
+  internal           = true
+  subnets            = module.vpc.private_subnets             # module.vpc.public_subnets
+  security_groups    = [aws_security_group.project_x_http.id] # , aws_security_group.project_x_https.id]
 }
 
 /* ALB Target Group */
@@ -98,16 +99,16 @@ resource "aws_lb_listener" "graphhopper_http" {
   }
 }
 
-resource "aws_lb_listener" "graphhopper_https" {
-  load_balancer_arn = aws_alb.graphhopper.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = var.cert_arn
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.graphhopper.arn
-  }
-}
+# resource "aws_lb_listener" "graphhopper_https" {
+#   load_balancer_arn = aws_alb.graphhopper.arn
+#   port              = 443
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+#   certificate_arn   = var.cert_arn
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.graphhopper.arn
+#   }
+# }
 
 output "graphhopper_url" { value = aws_alb.graphhopper.dns_name }

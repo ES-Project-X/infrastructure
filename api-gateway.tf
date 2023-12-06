@@ -9,6 +9,14 @@ resource "aws_apigatewayv2_stage" "project_x" {
   auto_deploy = true
 }
 
+/* Link API Gateway to VPC */
+
+resource "aws_apigatewayv2_vpc_link" "project_x" {
+  name               = "project-x-vpc-link"
+  security_group_ids = [aws_security_group.project_x_http.id]
+  subnet_ids         = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]] # [module.vpc.public_subnets[0], module.vpc.public_subnets[1]]
+}
+
 /* Allow HTTPS from our domain */
 
 resource "aws_apigatewayv2_domain_name" "project_x" {
@@ -34,12 +42,6 @@ resource "aws_apigatewayv2_api_mapping" "project_x" {
 
 /* REST API */
 
-resource "aws_apigatewayv2_vpc_link" "rest_api" {
-  name               = "project-x-rest-api"
-  security_group_ids = [aws_security_group.project_x_http.id]
-  subnet_ids         = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]] # [module.vpc.public_subnets[0], module.vpc.public_subnets[1]]
-}
-
 resource "aws_apigatewayv2_route" "rest_api" {
   api_id    = aws_apigatewayv2_api.project_x.id
   route_key = "ANY /api/{proxy+}"
@@ -54,11 +56,11 @@ resource "aws_apigatewayv2_integration" "rest_api" {
 
   integration_method = "ANY"
   connection_type    = "VPC_LINK"
-  connection_id      = aws_apigatewayv2_vpc_link.rest_api.id
+  connection_id      = aws_apigatewayv2_vpc_link.project_x.id
 
-request_parameters = {
-  "overwrite:path" = "/$request.path.proxy"
-}
+  request_parameters = {
+    "overwrite:path" = "/$request.path.proxy"
+  }
 }
 
 /* Graphhopper */
@@ -70,9 +72,15 @@ resource "aws_apigatewayv2_route" "graphhopper" {
 }
 
 resource "aws_apigatewayv2_integration" "graphhopper" {
-  api_id             = aws_apigatewayv2_api.project_x.id
-  integration_type   = "HTTP_PROXY"
+  api_id           = aws_apigatewayv2_api.project_x.id
+  integration_type = "HTTP_PROXY"
+  integration_uri  = aws_lb_listener.graphhopper_http.arn # "http://${aws_alb.graphhopper.dns_name}/{proxy}"
+
   integration_method = "ANY"
-  integration_uri    = "http://${aws_alb.graphhopper.dns_name}/{proxy}"
-  connection_type    = "INTERNET"
+  connection_type    = "VPC_LINK"
+  connection_id      = aws_apigatewayv2_vpc_link.project_x.id
+  
+  request_parameters = {
+    "overwrite:path" = "/$request.path.proxy"
+  }
 }
