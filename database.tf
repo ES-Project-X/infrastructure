@@ -1,6 +1,6 @@
 resource "aws_db_subnet_group" "project_x" {
   name       = "project-x-db-subnet-group"
-  subnet_ids = module.vpc.public_subnets
+  subnet_ids = module.vpc.private_subnets # module.vpc.public_subnets
 }
 
 resource "aws_db_instance" "project_x" {
@@ -17,8 +17,8 @@ resource "aws_db_instance" "project_x" {
   password = "password"
 
   availability_zone      = module.vpc.azs[0]
-  vpc_security_group_ids = [aws_security_group.project_x_postgres.id]
+  # vpc_security_group_ids = [aws_security_group.project_x_postgres.id]
   db_subnet_group_name   = aws_db_subnet_group.project_x.name
 
-  publicly_accessible = true
+  # publicly_accessible = true
 }
