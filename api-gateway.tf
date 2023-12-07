@@ -14,7 +14,7 @@ resource "aws_apigatewayv2_stage" "project_x" {
 resource "aws_apigatewayv2_vpc_link" "project_x" {
   name               = "project-x-vpc-link"
   security_group_ids = [aws_security_group.project_x_http.id]
-  subnet_ids         = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]] # [module.vpc.public_subnets[0], module.vpc.public_subnets[1]]
+  subnet_ids         = [module.vpc.private_subnets[0], module.vpc.private_subnets[1]]
 }
 
 /* Allow HTTPS from our domain */
@@ -52,7 +52,7 @@ resource "aws_apigatewayv2_route" "rest_api" {
 resource "aws_apigatewayv2_integration" "rest_api" {
   api_id           = aws_apigatewayv2_api.project_x.id
   integration_type = "HTTP_PROXY"
-  integration_uri  = aws_lb_listener.rest_api_http.arn # "http://${aws_alb.rest_api.dns_name}/{proxy}"
+  integration_uri  = aws_lb_listener.rest_api_http.arn
 
   integration_method = "ANY"
   connection_type    = "VPC_LINK"
@@ -74,12 +74,12 @@ resource "aws_apigatewayv2_route" "graphhopper" {
 resource "aws_apigatewayv2_integration" "graphhopper" {
   api_id           = aws_apigatewayv2_api.project_x.id
   integration_type = "HTTP_PROXY"
-  integration_uri  = aws_lb_listener.graphhopper_http.arn # "http://${aws_alb.graphhopper.dns_name}/{proxy}"
+  integration_uri  = aws_lb_listener.graphhopper_http.arn
 
   integration_method = "ANY"
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.project_x.id
-  
+
   request_parameters = {
     "overwrite:path" = "/$request.path.proxy"
   }
