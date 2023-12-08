@@ -4,6 +4,8 @@
 
 This repository contains a Terraform script for setting up our infrastructure on AWS.
 
+**Course:** Software Engineering (2023/2024).
+
 ## Installation
 
 - Run `./setup-terraform.sh` in root to install Terraform.
