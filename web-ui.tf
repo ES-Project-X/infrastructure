@@ -45,7 +45,7 @@ resource "aws_ecs_service" "web_ui" {
   desired_count   = 1
 
   network_configuration {
-    subnets          = [module.vpc.public_subnets[0]]
+    subnets          = [module.vpc.private_subnets[0]]
     assign_public_ip = true
     security_groups  = [aws_security_group.project_x_web_ui.id]
   }
@@ -63,7 +63,7 @@ resource "aws_alb" "web_ui" {
   name               = "web-ui-alb"
   load_balancer_type = "application"
   subnets            = module.vpc.public_subnets
-  security_groups    = [aws_security_group.project_x_http.id, aws_security_group.project_x_https.id]
+  security_groups    = [aws_security_group.project_x_https.id]
 }
 
 /* ALB Target Group */
