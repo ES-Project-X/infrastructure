@@ -1,4 +1,4 @@
-# Project X - Infrastructure
+# BiX - Infrastructure
 
 ## Description
 
